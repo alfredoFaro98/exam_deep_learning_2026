@@ -1,0 +1,144 @@
+{% extends 'analysis_viz/base.html' %}
+{% load static %}
+
+{% block title %}Contesto del Progetto: Protein Dynamics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .box { background: var(--card-bg); padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow-color); margin-bottom: 30px; border: 1px solid var(--border-color); }
+    .highlight { font-weight: bold; color: var(--accent-color); background-color: rgba(52, 152, 219, 0.1); padding: 2px 5px; border-radius: 3px; }
+    h2 { color: var(--accent-color); margin-top: 40px; border-left: 5px solid var(--accent-color); padding-left: 10px; }
+    h3 { color: var(--text-color); margin-top: 30px; opacity: 0.9; }
+    
+    ul { list-style-type: none; padding-left: 0; }
+    li { margin-bottom: 15px; font-size: 1.05em; padding-left: 20px; border-left: 3px solid var(--border-color); }
+    
+    table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9em; background: var(--card-bg); margin-bottom: 20px; }
+    th { padding: 10px; border: 1px solid var(--border-color); background-color: var(--header-bg); color: var(--header-text); }
+    td { padding: 8px; border: 1px solid var(--border-color); color: var(--text-color); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <a href="/" style="display: inline-block; margin-bottom: 20px; text-decoration: none; background-color: var(--accent-color); color: white; padding: 10px 20px; border-radius: 5px;">&larr; Torna alla Dashboard</a>
+
+    <h1>Step 0: Il Contesto e il Meccanismo di Predizione</h1>
+    
+    <div class="box">
+        <h2>1. Il Problema: Limitazioni della Dinamica Molecolare Classica</h2>
+        <p>L'obiettivo del progetto è simulare il comportamento dinamico delle proteine (Protein Dynamics).</p>
+        <p>Attualmente, questo si fa con algoritmi di <strong>Dinamica Molecolare (MD)</strong> che risolvono le equazioni del moto di Newton per ogni atomo.</p>
+        <p><strong>Il collo di bottiglia:</strong> Per simulare un nanosecondo di vita della proteina, la CPU deve calcolare miliardi di interazioni fisiche. È un processo computazionalmente oneroso (O(N<sup>2</sup>)) e molto lento.</p>
+        <p><strong>La soluzione Deep Learning:</strong> Sostituiamo il calcolo fisico esplicito con un modello statistico. Invece di calcolare le forze, addestriamo una rete neurale a inferire la posizione futura basandosi su milioni di esempi di movimenti passati.</p>
+    </div>
+
+    <div class="box">
+        <h2>2. Il Meccanismo: Come avviene la predizione?</h2>
+        <p>Dal punto di vista informatico, stiamo affrontando un problema di <strong>Time Series Forecasting</strong> (previsione di serie temporali) di tipo "Many-to-One" o "Many-to-Many".</p>
+        
+        <h3>Il flusso dei dati (Input &rarr; Output)</h3>
+        <p>Immagina il dataset come una matrice dove ogni riga è un istante temporale (<i>t</i>) e le colonne sono le coordinate (<i>x, y, z</i>) di tutti i 138 atomi (totale 414 colonne/features).</p>
+        
+        <ul>
+            <li><strong>Input (Il Passato):</strong> Al modello forniamo una "finestra" di stati precedenti. Esempio: Le posizioni degli atomi dal tempo <i>t</i><sub>-9</sub> al tempo <i>t</i><sub>0</sub> (10 frame totali).</li>
+            <li><strong>La "Black Box" (Il Modello):</strong> La rete neurale riceve questi numeri e applica una serie di operazioni matematiche (moltiplicazioni matriciali pesate + funzioni non lineari) per trasformare l'input in una nuova rappresentazione interna.</li>
+            <li><strong>Output (La Predizione):</strong> Il modello restituisce un vettore di 414 numeri: le coordinate stimate per il tempo <i>t</i><sub>+1</sub>.</li>
+        </ul>
+
+        <h3>Come fa a "imparare"?</h3>
+        <p>Durante il training, il modello fa una predizione, la confronta con la vera posizione <i>t</i><sub>+1</sub> (che conosciamo dal dataset) e calcola l'errore (distanza euclidea tra predizione e realtà). Attraverso la <strong>Backpropagation</strong>, il modello aggiusta i propri pesi interni per ridurre questo errore la volta successiva. Dopo migliaia di cicli, il modello "intuisce" la fisica del movimento.</p>
+
+        <h3>Rappresentazione Tabellare dei Dati</h3>
+        <p>Ecco concretamente cosa "vede" la rete neurale per fare una singola predizione:</p>
+
+        <div style="overflow-x: auto; margin-bottom: 20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="5">INPUT: Finestra Temporale (es. 10 frame passati)</th>
+                    </tr>
+                    <tr>
+                        <td style="background-color: var(--bg-color); font-weight: bold;">Tempo</td>
+                        <td style="background-color: var(--bg-color);">Atomo 1 (x,y,z)</td>
+                        <td style="background-color: var(--bg-color);">Atomo 2 (x,y,z)</td>
+                        <td style="background-color: var(--bg-color);">...</td>
+                        <td style="background-color: var(--bg-color);">Atomo 138 (x,y,z)</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: bold;">t<sub>-9</sub></td>
+                        <td>[0.5, 1.2, -0.3]</td>
+                        <td>[2.1, 0.0, 1.1]</td>
+                        <td>...</td>
+                        <td>[-0.1, 3.2, 0.5]</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">t<sub>-8</sub></td>
+                        <td>[0.5, 1.3, -0.2]</td>
+                        <td>[2.2, 0.1, 1.0]</td>
+                        <td>...</td>
+                        <td>[-0.2, 3.1, 0.6]</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">... (altri 7 frame) ...</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; color: var(--accent-color);">t<sub>0</sub> (Oggi)</td>
+                        <td>[0.7, 1.5, 0.1]</td>
+                        <td>[2.4, 0.3, 0.9]</td>
+                        <td>...</td>
+                        <td>[-0.3, 3.0, 0.9]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0; font-size: 2em; color: var(--text-color);">&darr;</div>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="5" style="border: 2px solid #e74c3c; border-bottom: none;">OUTPUT: Predizione (Prossimo istante)</th>
+                    </tr>
+                    <tr>
+                        <td style="background-color: var(--bg-color); font-weight: bold;">Tempo</td>
+                        <td style="background-color: var(--bg-color);">Atomo 1 (x,y,z)</td>
+                        <td style="background-color: var(--bg-color);">Atomo 2 (x,y,z)</td>
+                        <td style="background-color: var(--bg-color);">...</td>
+                        <td style="background-color: var(--bg-color);">Atomo 138 (x,y,z)</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: bold; color: #e74c3c;">t<sub>+1</sub> (Futuro)</td>
+                        <td><b>[0.8, 1.6, 0.2]</b></td>
+                        <td><b>[2.5, 0.4, 0.8]</b></td>
+                        <td>...</td>
+                        <td><b>[-0.4, 2.9, 1.0]</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box">
+        <h2>3. Il Ruolo dei Modelli Specifici</h2>
+        <p>Perché usiamo proprio RNN e CNN? Perché trattano la sequenza temporale in modi diversi per estrarre informazioni utili alla predizione.</p>
+
+        <h3>A. RNN (Recurrent Neural Network) – Analisi Sequenziale</h3>
+        <p>La RNN processa i frame uno alla volta, in ordine (<i>t</i><sub>-9</sub>, <i>t</i><sub>-8</sub>, &dots;, <i>t</i><sub>0</sub>).</p>
+        <ul>
+            <li><strong>Come aiuta:</strong> Mantiene una "memoria interna" (hidden state). Quando arriva al frame <i>t</i><sub>0</sub>, la sua memoria contiene già un "riassunto" di ciò che è successo nei frame precedenti.</li>
+            <li><strong>Utilità:</strong> Capisce la dinamica temporale. Se un atomo si sta spostando verso destra da 5 frame, la RNN "ricorda" questa inerzia e predirà che continuerà a spostarsi a destra. Senza RNN, il modello vedrebbe solo istantanee sconnesse.</li>
+        </ul>
+
+        <h3>B. CNN 1D (Convolutional Neural Network) – Analisi Locale</h3>
+        <p>La CNN 1D osserva la finestra temporale (<i>t</i><sub>-9</sub> &dots; <i>t</i><sub>0</sub>) tutta insieme, applicando dei filtri (kernel) che scorrono lungo l'asse del tempo.</p>
+        <ul>
+            <li><strong>Come aiuta:</strong> Cerca pattern ripetitivi o specifici all'interno della finestra, indipendentemente dalla loro posizione temporale assoluta.</li>
+            <li><strong>Utilità:</strong> Rileva caratteristiche locali. Ad esempio, può riconoscere una rapida vibrazione o un cambiamento improvviso di direzione avvenuto negli ultimi 3 frame, informazioni cruciali per correggere la predizione del frame successivo.</li>
+        </ul>
+    </div>
+{% endblock %}

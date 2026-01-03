@@ -1,0 +1,15 @@
+# Ignora file pesanti
+*.csv
+*.xlsx
+*.xls
+*.zip
+
+# Ignora cartelle di dati
+data/
+dataset/
+
+# Ignora file di sistema e cache Python
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

@@ -1,0 +1,89 @@
+{% extends 'analysis_viz/base.html' %}
+{% load static %}
+
+{% block title %}Protein Dynamics Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .phases-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Mobile default */
+        gap: 15px;
+    }
+    
+    /* Tablet: 2 columns */
+    @media (min-width: 600px) {
+        .phases-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    /* Desktop: 3 columns */
+    @media (min-width: 900px) {
+        .phases-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* Large Screens: 5 columns all in one row */
+    @media (min-width: 1400px) {
+        .phases-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+
+    .card h2 { font-size: 1.1rem; margin-top: 0; }
+    .card p { font-size: 0.9rem; margin-bottom: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: var(--accent-color);">Protein Dynamics Project Roadmap (6 CFU)</h1>
+        <p>Segui i passaggi per completare il progetto.</p>
+    </div>
+
+    <!-- 5 Cards Layout (Responsive) -->
+    <div class="phases-grid">
+        
+        <!-- STEP 0 -->
+        <a href="/context" style="text-decoration: none; color: inherit;">
+            <div class="card" style="border-top: 5px solid #2ecc71; background: var(--card-bg);">
+                <h2>Step 0: Contesto</h2>
+                <p>Comprendere obiettiv, sfide e dominio applicativo.</p>
+                <button style="margin-top: 10px; cursor: pointer; padding: 5px 10px; border: none; background: #2ecc71; color: white; border-radius: 4px;">Vai a Dettagli &rarr;</button>
+            </div>
+        </a>
+
+        <!-- STEP 1 -->
+        <div class="card" style="border-top: 5px solid #3498db; opacity: 0.8; background: var(--card-bg);">
+            <h2>Step 1: Data & Preprocessing</h2>
+            <p>Importazione dati, pulizia e riduzione dimensionale (PCA).</p>
+            <p style="font-size: 0.9em; opacity: 0.7;">(Script spostati in <code>Step_1_Preprocessing</code>)</p>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="card" style="border-top: 5px solid #9b59b6; opacity: 0.6; background: var(--card-bg);">
+            <h2>Step 2: Modelli</h2>
+            <p>Implementazione CNN 1D e RNN parametriche.</p>
+            <p style="font-size: 0.8em;">(To Do)</p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="card" style="border-top: 5px solid #f1c40f; opacity: 0.6; background: var(--card-bg);">
+            <h2>Step 3: Training & Tuning</h2>
+            <p>Training Loop avanzato (Teacher Forcing) e Grid Search.</p>
+            <p style="font-size: 0.8em;">(To Do)</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="card" style="border-top: 5px solid #e74c3c; opacity: 0.6; background: var(--card-bg);">
+            <h2>Step 4: Valutazione</h2>
+            <p>Metriche, grafici e generazione report finale.</p>
+            <p style="font-size: 0.8em;">(To Do)</p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 40px; background: var(--card-bg);">
+        <h3>Stato Attuale</h3>
+        <ul>
+            <li><strong>Fase Attuale:</strong> Completamento Step 0.</li>
+            <li><strong>File Organizzati:</strong> Le cartelle per tutti e 5 gli step sono state create.</li>
+            <li><strong>Prossima Azione:</strong> Verificare codice Step 1 e procedere a Step 2.</li>
+        </ul>
+    </div>
+{% endblock %}
