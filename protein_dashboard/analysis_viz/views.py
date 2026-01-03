@@ -11,3 +11,15 @@ def analysis_dashboard(request):
 
 def context_view(request):
     return render(request, 'analysis_viz/context.html')
+
+def step1_view(request):
+    return render(request, 'analysis_viz/step1.html')
+
+def step2_view(request):
+    return render(request, 'analysis_viz/step2.html')
+
+def step3_view(request):
+    return render(request, 'analysis_viz/step3.html')
+
+def step4_view(request):
+    return render(request, 'analysis_viz/step4.html')

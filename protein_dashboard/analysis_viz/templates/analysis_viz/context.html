@@ -16,13 +16,44 @@
     table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9em; background: var(--card-bg); margin-bottom: 20px; }
     th { padding: 10px; border: 1px solid var(--border-color); background-color: var(--header-bg); color: var(--header-text); }
     td { padding: 8px; border: 1px solid var(--border-color); color: var(--text-color); }
+    
+    .nav-arrow {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--card-bg);
+        color: var(--accent-color);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px var(--shadow-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        text-decoration: none;
+        border: 2px solid var(--accent-color);
+        transition: all 0.3s;
+        z-index: 100;
+    }
+    .nav-arrow:hover {
+        background-color: var(--accent-color);
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+    .nav-arrow.left { left: 20px; }
+    .nav-arrow.right { right: 20px; }
 </style>
 {% endblock %}
 
 {% block content %}
-    <a href="/" style="display: inline-block; margin-bottom: 20px; text-decoration: none; background-color: var(--accent-color); color: white; padding: 10px 20px; border-radius: 5px;">&larr; Torna alla Dashboard</a>
+    <!-- Floating Navigation Arrows -->
+    <a href="/" class="nav-arrow left" title="Torna alla Dashboard">&larr;</a>
+    <a href="/step1" class="nav-arrow right" title="Vai allo Step 1">&rarr;</a>
 
-    <h1>Step 0: Il Contesto e il Meccanismo di Predizione</h1>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: var(--accent-color);">Step 0: Il Contesto e il Meccanismo di Predizione</h1>
+    </div>
     
     <div class="box">
         <h2>1. Il Problema: Limitazioni della Dinamica Molecolare Classica</h2>
@@ -140,5 +171,17 @@
             <li><strong>Come aiuta:</strong> Cerca pattern ripetitivi o specifici all'interno della finestra, indipendentemente dalla loro posizione temporale assoluta.</li>
             <li><strong>Utilità:</strong> Rileva caratteristiche locali. Ad esempio, può riconoscere una rapida vibrazione o un cambiamento improvviso di direzione avvenuto negli ultimi 3 frame, informazioni cruciali per correggere la predizione del frame successivo.</li>
         </ul>
+    </div>
+
+    <div class="box">
+        <h2>4. Impatto Reale: Cosa succede se sbagliamo?</h2>
+        <p>Al di là dei numeri e della matematica, una predizione errata ha conseguenze tangibili nel mondo reale ("Livello Pratico Umano"):</p>
+        
+        <ul>
+            <li><strong>Farmaci Inefficaci (Il problema della "Chiave Sbagliata"):</strong> Se il modello prevede che la proteina assumerà una certa forma (serratura) e noi progettiamo un farmaco (chiave) per quella forma, ma nella realtà la proteina si muove diversamente, il farmaco non funzionerà. Risultato: Malattie che restano senza cura.</li>
+            <li><strong>Effetti Collaterali Non Previsti:</strong> Una simulazione errata potrebbe non mostrarci che la proteina, in certe condizioni, assume una configurazione pericolosa o che interagisce con altre molecole vitali, portando a tossicità nel paziente.</li>
+            <li><strong>Spreco di Risorse Umane ed Economiche:</strong> Basarsi su simulazioni errate porta i ricercatori a spendere anni e milioni di euro in test di laboratorio su molecole destinate a fallire, rallentando la ricerca scientifica globale.</li>
+        </ul>
+        <p>Ecco perché non cerchiamo solo "un punteggio alto" nel modello, ma una comprensione <strong>robusta e affidabile</strong> della fisica sottostante.</p>
     </div>
 {% endblock %}
