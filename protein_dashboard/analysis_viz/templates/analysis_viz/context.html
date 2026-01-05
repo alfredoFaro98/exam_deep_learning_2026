@@ -7,16 +7,19 @@
 <style>
     .box { background: var(--card-bg); padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow-color); margin-bottom: 30px; border: 1px solid var(--border-color); }
     .highlight { font-weight: bold; color: var(--accent-color); background-color: rgba(52, 152, 219, 0.1); padding: 2px 5px; border-radius: 3px; }
-    h2 { color: var(--accent-color); margin-top: 40px; border-left: 5px solid var(--accent-color); padding-left: 10px; }
-    h3 { color: var(--text-color); margin-top: 30px; opacity: 0.9; }
+    h2 { color: var(--accent-color); margin-top: 40px; border-left: 5px solid var(--accent-color); padding-left: 10px; margin-bottom: 20px; }
+    h3 { color: var(--text-color); margin-top: 25px; margin-bottom: 15px; opacity: 0.95; font-weight: 600; }
     
     ul { list-style-type: none; padding-left: 0; }
     li { margin-bottom: 15px; font-size: 1.05em; padding-left: 20px; border-left: 3px solid var(--border-color); }
+    li strong { color: var(--accent-color); }
+    
+    p { line-height: 1.6; font-size: 1.05em; margin-bottom: 20px; color: var(--text-color); }
     
     table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9em; background: var(--card-bg); margin-bottom: 20px; }
     th { padding: 10px; border: 1px solid var(--border-color); background-color: var(--header-bg); color: var(--header-text); }
     td { padding: 8px; border: 1px solid var(--border-color); color: var(--text-color); }
-    
+
     .nav-arrow {
         position: fixed;
         top: 50%;
@@ -51,36 +54,43 @@
     <a href="/" class="nav-arrow left" title="Torna alla Dashboard">&larr;</a>
     <a href="/step1" class="nav-arrow right" title="Vai allo Step 1">&rarr;</a>
 
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="color: var(--accent-color);">Step 0: Il Contesto e il Meccanismo di Predizione</h1>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: var(--accent-color);">Step 0: Il Contesto Scientifico e il Meccanismo</h1>
     </div>
     
+    <!-- 1. Che cos'è la Dinamica Molecolare -->
     <div class="box">
-        <h2>1. Il Problema: Limitazioni della Dinamica Molecolare Classica</h2>
-        <p>L'obiettivo del progetto è simulare il comportamento dinamico delle proteine (Protein Dynamics).</p>
-        <p>Attualmente, questo si fa con algoritmi di <strong>Dinamica Molecolare (MD)</strong> che risolvono le equazioni del moto di Newton per ogni atomo.</p>
-        <p><strong>Il collo di bottiglia:</strong> Per simulare un nanosecondo di vita della proteina, la CPU deve calcolare miliardi di interazioni fisiche. È un processo computazionalmente oneroso (O(N<sup>2</sup>)) e molto lento.</p>
-        <p><strong>La soluzione Deep Learning:</strong> Sostituiamo il calcolo fisico esplicito con un modello statistico. Invece di calcolare le forze, addestriamo una rete neurale a inferire la posizione futura basandosi su milioni di esempi di movimenti passati.</p>
-    </div>
-
-    <div class="box">
-        <h2>2. Il Meccanismo: Come avviene la predizione?</h2>
-        <p>Dal punto di vista informatico, stiamo affrontando un problema di <strong>Time Series Forecasting</strong> (previsione di serie temporali) di tipo "Many-to-One" o "Many-to-Many".</p>
+        <h2>1. Il Problema e l'Obiettivo</h2>
         
-        <h3>Il flusso dei dati (Input &rarr; Output)</h3>
-        <p>Immagina il dataset come una matrice dove ogni riga è un istante temporale (<i>t</i>) e le colonne sono le coordinate (<i>x, y, z</i>) di tutti i 138 atomi (totale 414 colonne/features).</p>
-        
+        <h3>Che cos'è la Dinamica Molecolare (MD)?</h3>
+        <p>Le simulazioni MD sono metodi computazionali che analizzano il comportamento fisico di proteine e biomolecole ad alta risoluzione temporale. Immaginale come un <strong>"film"</strong> che mostra come si muove una proteina a livello atomico.</p>
         <ul>
-            <li><strong>Input (Il Passato):</strong> Al modello forniamo una "finestra" di stati precedenti. Esempio: Le posizioni degli atomi dal tempo <i>t</i><sub>-9</sub> al tempo <i>t</i><sub>0</sub> (10 frame totali).</li>
-            <li><strong>La "Black Box" (Il Modello):</strong> La rete neurale riceve questi numeri e applica una serie di operazioni matematiche (moltiplicazioni matriciali pesate + funzioni non lineari) per trasformare l'input in una nuova rappresentazione interna.</li>
-            <li><strong>Output (La Predizione):</strong> Il modello restituisce un vettore di 414 numeri: le coordinate stimate per il tempo <i>t</i><sub>+1</sub>.</li>
+            <li><strong>Il Processo Classico:</strong> La simulazione risolve le equazioni del moto di Newton per ogni atomo ogni 2 femtosecondi (un tempo infinitesimale, 10<sup>-15</sup> secondi).</li>
+            <li><strong>Il Collo di Bottiglia:</strong> Calcolare forze e velocità per ogni atomo ogni 2 femtosecondi è estremamente lento e richiede un'enorme potenza di calcolo (O(N<sup>2</sup>)).</li>
         </ul>
 
-        <h3>Come fa a "imparare"?</h3>
-        <p>Durante il training, il modello fa una predizione, la confronta con la vera posizione <i>t</i><sub>+1</sub> (che conosciamo dal dataset) e calcola l'errore (distanza euclidea tra predizione e realtà). Attraverso la <strong>Backpropagation</strong>, il modello aggiusta i propri pesi interni per ridurre questo errore la volta successiva. Dopo migliaia di cicli, il modello "intuisce" la fisica del movimento.</p>
+        <h3>L'Obiettivo del Deep Learning</h3>
+        <p>L'obiettivo è creare un modello di <strong>Deep Learning</strong> capace di effettuare una previsione dipendente dal tempo delle matrici di forza, velocità e coordinate.</p>
+        <p>Invece di calcolare tutto fisicamente passo dopo passo, l'AI impara a "prevedere" il movimento futuro, permettendo di aggiornare le posizioni degli atomi molto più velocemente.</p>
+    </div>
 
-        <h3>Rappresentazione Tabellare dei Dati</h3>
-        <p>Ecco concretamente cosa "vede" la rete neurale per fare una singola predizione:</p>
+    <!-- 2. I Dati e il Meccanismo -->
+    <div class="box">
+        <h2>2. I Dati e il Meccanismo di Predizione</h2>
+        
+        <h3>I Dati (Input)</h3>
+        <p>Per ogni "passo temporale" (time-step), la simulazione lavora su tre matrici di lunghezza 3N (dove N è il numero di atomi):</p>
+        <ul>
+            <li><strong>Coordinate (X):</strong> La posizione nello spazio (x, y, z) di ogni atomo.</li>
+            <li><strong>Forze (F):</strong> La forza che agisce su ogni atomo nelle tre direzioni.</li>
+            <li><strong>Velocità (V):</strong> La direzione e la rapidità del movimento.</li>
+        </ul>
+
+        <h3>La Sfida: Time Series Forecasting</h3>
+        <p>Stiamo affrontando un problema di previsione di serie temporali. Immagina il dataset come una sequenza di frame video.</p>
+        
+        <h4>Rappresentazione Tabellare del Processo (Input &rarr; Output)</h4>
+        <p>Ecco concretamente cosa "vede" la rete neurale. Forniamo una finestra di 10 frame passati (<i>t</i><sub>-9</sub> ... <i>t</i><sub>0</sub>) per predire il frame futuro (<i>t</i><sub>+1</sub>).</p>
 
         <div style="overflow-x: auto; margin-bottom: 20px;">
             <table>
@@ -125,7 +135,7 @@
             </table>
         </div>
 
-        <div style="text-align: center; margin: 20px 0; font-size: 2em; color: var(--text-color);">&darr;</div>
+        <div style="text-align: center; margin: 20px 0; font-size: 2em; color: var(--text-color);">&darr; <i>La Rete Neurale elabora...</i> &darr;</div>
 
         <div style="overflow-x: auto;">
             <table>
@@ -154,34 +164,61 @@
         </div>
     </div>
 
+    <!-- 3. Le Sfide Tecniche -->
     <div class="box">
-        <h2>3. Il Ruolo dei Modelli Specifici</h2>
-        <p>Perché usiamo proprio RNN e CNN? Perché trattano la sequenza temporale in modi diversi per estrarre informazioni utili alla predizione.</p>
-
-        <h3>A. RNN (Recurrent Neural Network) – Analisi Sequenziale</h3>
-        <p>La RNN processa i frame uno alla volta, in ordine (<i>t</i><sub>-9</sub>, <i>t</i><sub>-8</sub>, &dots;, <i>t</i><sub>0</sub>).</p>
+        <h2>3. Le Sfide Tecniche</h2>
+        <p>Per realizzare questo modello, dobbiamo superare quattro ostacoli principali:</p>
         <ul>
-            <li><strong>Come aiuta:</strong> Mantiene una "memoria interna" (hidden state). Quando arriva al frame <i>t</i><sub>0</sub>, la sua memoria contiene già un "riassunto" di ciò che è successo nei frame precedenti.</li>
-            <li><strong>Utilità:</strong> Capisce la dinamica temporale. Se un atomo si sta spostando verso destra da 5 frame, la RNN "ricorda" questa inerzia e predirà che continuerà a spostarsi a destra. Senza RNN, il modello vedrebbe solo istantanee sconnesse.</li>
-        </ul>
-
-        <h3>B. CNN 1D (Convolutional Neural Network) – Analisi Locale</h3>
-        <p>La CNN 1D osserva la finestra temporale (<i>t</i><sub>-9</sub> &dots; <i>t</i><sub>0</sub>) tutta insieme, applicando dei filtri (kernel) che scorrono lungo l'asse del tempo.</p>
-        <ul>
-            <li><strong>Come aiuta:</strong> Cerca pattern ripetitivi o specifici all'interno della finestra, indipendentemente dalla loro posizione temporale assoluta.</li>
-            <li><strong>Utilità:</strong> Rileva caratteristiche locali. Ad esempio, può riconoscere una rapida vibrazione o un cambiamento improvviso di direzione avvenuto negli ultimi 3 frame, informazioni cruciali per correggere la predizione del frame successivo.</li>
+            <li><strong>Riduzione della Dimensionalità:</strong> Dati enormi (centinaia di variabili). Dobbiamo comprimere l'informazione senza perdere i dettagli vitali.</li>
+            <li><strong>Ottimizzazione della Finestra Temporale:</strong> Trovare il giusto compromesso "memoria vs velocità". Quanti frame passati servono davvero?</li>
+            <li><strong>Super Risoluzione:</strong> Passare da dati a bassa risoluzione temporale (pochi frame) a previsioni ad alta risoluzione (film fluido).</li>
+            <li><strong>Spiegabilità (Explainability):</strong> Usare le <em>Attention Maps</em> per capire "dove guarda" il modello. Non basta indovinare, dobbiamo fidarci della fisica appresa.</li>
         </ul>
     </div>
 
+    <!-- 4. I Modelli Specifici (RNN & CNN) -->
     <div class="box">
-        <h2>4. Impatto Reale: Cosa succede se sbagliamo?</h2>
-        <p>Al di là dei numeri e della matematica, una predizione errata ha conseguenze tangibili nel mondo reale ("Livello Pratico Umano"):</p>
+        <h2>4. Gli Strumenti: RNN e CNN</h2>
+        <p>Usiamo due architetture diverse per catturare aspetti diversi del movimento:</p>
+
+        <h3>A. RNN (Recurrent Neural Network) – La Memoria Sequenziale</h3>
+        <p>Processa i frame uno alla volta (<i>t</i><sub>-9</sub> &rarr; <i>t</i><sub>-8</sub>...).</p>
+        <ul>
+            <li><strong>Ruolo:</strong> Capisce l'inerzia e la direzione. "Se si muove a destra da 5 frame, continuerà a destra."</li>
+        </ul>
+
+        <h3>B. CNN 1D (Convolutional Neural Network) – I Pattern Locali</h3>
+        <p>Osserva l'intera finestra temporale in un colpo solo.</p>
+        <ul>
+            <li><strong>Ruolo:</strong> Rileva eventi specifici (es. una vibrazione improvvisa) indipendentemente da quando avvengono.</li>
+        </ul>
+    </div>
+
+    <!-- 5. Roadmap -->
+    <div class="box">
+        <h2>5. Roadmap Pratica</h2>
+        <ul>
+            <li><strong>Pre-processing:</strong> Pulizia dati, rimozione timestamp, normalizzazione.</li>
+            <li><strong>Implementazione:</strong> Creazione e training di CNN 1D e RNN (6 CFU).</li>
+            <li><strong>Validazione:</strong> Test iperparametri, confronto finestre temporali, analisi errori.</li>
+        </ul>
+    </div>
+
+    <!-- 6. Contesto Clinico e Impatto -->
+    <div class="box" style="border-left: 5px solid #27ae60;">
+        <h2 style="border: none; margin-top: 10px; padding-left: 0; color: #27ae60;">6. Il Contesto Clinico e l'Impatto Reale</h2>
         
+        <h3>Chi è il bersaglio?</h3>
+        <p><strong>Non stiamo simulando il farmaco, ma il bersaglio (Target).</strong></p>
+        <p>Le coordinate e le forze descrivono una proteina "malata" (es. tumorale) che continua a muoversi ("ballare"). I chimici devono progettare un farmaco che riesca ad incastrarsi in questa proteina ballerina.</p>
+
+        <h3>Le Conseguenze dell'Errore</h3>
+        <p>Se la nostra previsione di questo "ballo" è sbagliata:</p>
         <ul>
-            <li><strong>Farmaci Inefficaci (Il problema della "Chiave Sbagliata"):</strong> Se il modello prevede che la proteina assumerà una certa forma (serratura) e noi progettiamo un farmaco (chiave) per quella forma, ma nella realtà la proteina si muove diversamente, il farmaco non funzionerà. Risultato: Malattie che restano senza cura.</li>
-            <li><strong>Effetti Collaterali Non Previsti:</strong> Una simulazione errata potrebbe non mostrarci che la proteina, in certe condizioni, assume una configurazione pericolosa o che interagisce con altre molecole vitali, portando a tossicità nel paziente.</li>
-            <li><strong>Spreco di Risorse Umane ed Economiche:</strong> Basarsi su simulazioni errate porta i ricercatori a spendere anni e milioni di euro in test di laboratorio su molecole destinate a fallire, rallentando la ricerca scientifica globale.</li>
+            <li><strong>Farmaci Inefficaci:</strong> Il farmaco viene disegnato per una forma che la proteina non assume mai nella realtà.</li>
+            <li><strong>Effetti Collaterali:</strong> La simulazione fallisce nel mostrare configurazioni pericolose della proteina ch interagiscono con altre molecole vitali.</li>
+            <li><strong>Spreco di Risorse:</strong> Anni di ricerca buttati su molecole che funzionano solo "al computer" ma non nella realtà fisica.</li>
         </ul>
-        <p>Ecco perché non cerchiamo solo "un punteggio alto" nel modello, ma una comprensione <strong>robusta e affidabile</strong> della fisica sottostante.</p>
     </div>
+
 {% endblock %}

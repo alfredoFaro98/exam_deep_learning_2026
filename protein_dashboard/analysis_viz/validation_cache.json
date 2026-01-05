@@ -1,0 +1,51 @@
+{
+    "mtimes": {
+        "coordinates": 1767450793.3411443,
+        "forces": 1767450795.114328,
+        "velocities": 1767450797.0072403
+    },
+    "results": {
+        "coordinates": {
+            "name": "Coordinates",
+            "status": "Success",
+            "shape": [
+                50001,
+                414
+            ],
+            "details": [
+                "File loaded successfully.",
+                "Original shape: (50001, 415)",
+                "Removed 1st column (timestamp)."
+            ]
+        },
+        "forces": {
+            "name": "Forces",
+            "status": "Success",
+            "shape": [
+                50001,
+                415
+            ],
+            "details": [
+                "File loaded successfully."
+            ]
+        },
+        "velocities": {
+            "name": "Velocities",
+            "status": "Success",
+            "shape": [
+                50001,
+                415
+            ],
+            "details": [
+                "File loaded successfully."
+            ]
+        },
+        "consistency": {
+            "name": "Consistency Check",
+            "status": "Success",
+            "details": [
+                "All data files appear consistent and ready for processing."
+            ]
+        }
+    }
+}

@@ -1,17 +1,255 @@
 {% extends 'analysis_viz/base.html' %}
+{% load static %}
 
 {% block title %}Step 1: Data Verification{% endblock %}
+
+{% block extra_css %}
+<style>
+    .box { background: var(--card-bg); padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow-color); margin-bottom: 30px; border: 1px solid var(--border-color); }
+    .highlight { font-weight: bold; color: var(--accent-color); background-color: rgba(52, 152, 219, 0.1); padding: 2px 5px; border-radius: 3px; }
+    h2 { color: var(--accent-color); margin-top: 40px; border-left: 5px solid var(--accent-color); padding-left: 10px; margin-bottom: 20px; }
+    h3 { color: var(--text-color); margin-top: 25px; margin-bottom: 15px; opacity: 0.95; font-weight: 600; }
+    
+    ul { list-style-type: none; padding-left: 0; }
+    li { margin-bottom: 15px; font-size: 1.05em; padding-left: 20px; border-left: 3px solid var(--border-color); }
+    li strong { color: var(--accent-color); }
+    
+    p { line-height: 1.6; font-size: 1.05em; margin-bottom: 20px; color: var(--text-color); }
+
+    .nav-arrow {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--card-bg);
+        color: var(--accent-color);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px var(--shadow-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        text-decoration: none;
+        border: 2px solid var(--accent-color);
+        transition: all 0.3s;
+        z-index: 100;
+    }
+    .nav-arrow:hover {
+        background-color: var(--accent-color);
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+    .nav-arrow.left { left: 20px; }
+    .nav-arrow.right { right: 20px; }
+
+    /* Custom styles for validation result cards */
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .status-card {
+        background: var(--card-bg, #fff);
+        border-top: 5px solid #ccc;
+        padding: 20px;
+        box-shadow: 0 4px 6px var(--shadow-color);
+        border-radius: 8px;
+    }
+    .status-success { border-top-color: #2ecc71; }
+    .status-error { border-top-color: #e74c3c; }
+    .status-missing { border-top-color: #e74c3c; }
+    .status-warning { border-top-color: #f1c40f; }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        font-weight: bold;
+        color: white;
+    }
+    .badge-success { background: #2ecc71; }
+    .badge-error { background: #e74c3c; }
+    .badge-missing { background: #e74c3c; }
+    .badge-warning { background: #f1c40f; }
+    .badge-pending { background: #95a5a6; }
+</style>
+{% endblock %}
 
 {% block content %}
     <!-- Floating Navigation Arrows -->
     <a href="/context" class="nav-arrow left" title="Torna a Contesto">&larr;</a>
     <a href="/step2" class="nav-arrow right" title="Vai a Step 2">&rarr;</a>
 
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="color: var(--accent-color);">Step 1: Data & Preprocessing (Under Construction)</h1>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: var(--accent-color);">Step 1: Data Import & Verification</h1>
+        <p>Organizzazione, pulizia e validazione del dataset grezzo.</p>
     </div>
-    <div class="card">
-        <p>Questa pagina sarà dedicata alla verifica dei dati e alla pulizia.</p>
-        <p>Stiamo per analizzare <code>coordinates.csv</code>, <code>forces.csv</code>, e <code>velocity.csv</code>.</p>
+
+    <!-- 1. I Dati Grezzi -->
+    <div class="box">
+        <h2>1. I Dati Grezzi</h2>
+        <p>Il punto di partenza del nostro progetto sono i dati provenienti dalle simulazioni di Dinamica Molecolare. Questi dati sono organizzati in tre file principali, che rappresentano lo stato fisico della proteina ad ogni istante temporale.</p>
+        
+        <h3>Struttura dei File</h3>
+        <h3>Struttura dei File</h3>
+        
+        <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: var(--accent-color); margin-bottom: 5px;">1. coordinates.csv (La Geometria)</h4>
+                <p>Contiene la posizione spaziale <code>(x, y, z)</code> di tutti i 138 atomi della proteina. 
+                Rappresenta la <strong>configurazione geometrica</strong> della molecola in ogni istante. 
+                È l'output principale che vogliamo visualizzare: se il modello lavora bene, vedremo la proteina muoversi "naturalmente" nello spazio.</p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: var(--accent-color); margin-bottom: 5px;">2. forces.csv (La Causa)</h4>
+                <p>Contiene le forze fisiche che agiscono su ogni atomo (dovute a legami chimici, attrazione elettrostatica, collisioni). 
+                Secondo la legge di Newton (<code>F = ma</code>), la forza è ciò che causa l'accelerazione e quindi il cambiamento del movimento. 
+                È l'ingrediente fondamentale per capire <em>perché</em> la proteina si muoverà in un certo modo.</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <h4 style="color: var(--accent-color); margin-bottom: 5px;">3. velocity.csv (Il Momento)</h4>
+                <p>Contiene la velocità istantanea vettoriale <code>(vx, vy, vz)</code> di ogni atomo. 
+                Rappresenta l'<strong>inerzia</strong> del movimento. Sapere solo dove si trova un atomo (Coordinate) non basta; 
+                dobbiamo sapere anche se sta andando veloce verso destra o se è fermo, per predire dove sarà nel frame successivo.</p>
+            </div>
+        </div>
+        <p>Ogni riga di questi file rappresenta un <strong>Time Step</strong> (un fotogramma del film), mentre le colonne rappresentano i valori appiattiti per tutti gli atomi.</p>
+
+        <h3>Rappresentazione Visiva dei CSV</h3>
+        <p>I file sono matrici 2D dove le coordinate (o forze/velocità) degli atomi sono appiattite su una singola riga per ogni istante di tempo.</p>
+        
+        <div style="overflow-x: auto; margin-top: 20px;">
+            <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.85em; background: var(--card-bg);">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px; border: 1px solid var(--border-color); background: var(--header-bg); color: #e74c3c;">Colonna 0 (Da Rimuovere)</th>
+                        <th style="padding: 10px; border: 1px solid var(--border-color); background: var(--header-bg);">Atomo 1 (x)</th>
+                        <th style="padding: 10px; border: 1px solid var(--border-color); background: var(--header-bg);">Atomo 1 (y)</th>
+                        <th style="padding: 10px; border: 1px solid var(--border-color); background: var(--header-bg);">Atomo 1 (z)</th>
+                        <th style="padding: 10px; border: 1px solid var(--border-color); background: var(--header-bg);">...</th>
+                        <th style="padding: 10px; border: 1px solid var(--border-color); background: var(--header-bg);">Atomo 138 (z)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid var(--border-color); color: #e74c3c;">0.000 (Time)</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">1.24</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">-0.55</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">0.33</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">...</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">2.11</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid var(--border-color); color: #e74c3c;">0.002 (Time)</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">1.25</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">-0.54</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">0.32</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">...</td>
+                        <td style="padding: 8px; border: 1px solid var(--border-color);">2.12</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 0.9em; margin-top: 10px; color: #7f8c8d;"><em>Nota: La colonna 0 (Timestamp) viene eliminata durante il pre-processing per lasciare solo i dati fisici puri (414 colonne = 138 atomi × 3 coordinate).</em></p>
     </div>
+
+    <!-- 2. La Sfida di Pulizia -->
+    <div class="box">
+        <h2>2. La Sfida: Inconsistenza nei Formati</h2>
+        <p>I dati di ricerca raramente arrivano puliti. In questo step, abbiamo affrontato e risolto diverse problematiche comuni nei dataset scientifici condivisi:</p>
+        <ul>
+            <li><strong>Formattazione Mista:</strong> Alcuni file usano il punto e virgola <code>;</code> come separatore, altri usano tabulazioni <code>\t</code> o spazi multipli.</li>
+            <li><strong>Timestamp Ridondanti:</strong> La prima colonna dei file spesso contiene un timestamp o un indice non necessario per l'allenamento della rete neurale, che deve essere rimosso.</li>
+            <li><strong>Allineamento Temporale:</strong> Dobbiamo garantire che la riga 100 delle Coordinate corrisponda esattamente alla riga 100 delle Forze. Un disallineamento renderebbe impossibile l'apprendimento della fisica.</li>
+        </ul>
+        <p>Abbiamo creato uno script di importazione robusto (<code>utils.py</code>) capace di rilevare automaticamente il formato e normalizzare i dati in matrici NumPy <code>(Time, Atoms, 3)</code>.</p>
+    </div>
+
+    <!-- 3. Live Validation Results -->
+    <div class="box" style="border-left: 5px solid #3498db;">
+        <h2 style="border: none; margin-top: 10px; padding-left: 0; color: #3498db;">3. Validazione in Tempo Reale</h2>
+        <p>Qui sotto puoi vedere i risultati dell'esecuzione automatica dello script di importazione sui file presenti nel sistema. Se le card sono verdi, siamo pronti per procedere.</p>
+
+        <div class="results-grid">
+            {% for key, result in validation_results.items %}
+                <div class="status-card status-{{ result.status|lower }}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: inherit;">{{ result.name }}</h3>
+                        <span class="status-badge badge-{{ result.status|lower }}">{{ result.status }}</span>
+                    </div>
+                    
+                    {% if result.shape %}
+                        <p style="margin-bottom: 5px;"><strong>Dimensioni:</strong> <code>{{ result.shape }}</code></p>
+                    {% endif %}
+                    
+                    <div style="margin-top: 10px; font-size: 0.85rem; text-align: left;">
+                        <ul style="margin-top: 5px; padding-left: 0; border: none;">
+                            {% for detail in result.details %}
+                                <li style="margin-bottom: 4px; padding-left: 0; border: none; list-style-type: disc; list-style-position: inside;">{{ detail }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if result.preview %}
+                    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                        <p style="margin-bottom: 5px; font-weight: bold; font-size: 0.9em; color: #7f8c8d;">Anteprima prime 5 righe (Reale):</p>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.8em;">
+                                <thead>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="border: 1px solid #ddd; padding: 4px; color: #e74c3c;">Col 0 (Time)</th>
+                                        <th style="border: 1px solid #ddd; padding: 4px;">Col 1</th>
+                                        <th style="border: 1px solid #ddd; padding: 4px;">Col 2</th>
+                                        <th style="border: 1px solid #ddd; padding: 4px;">Col 3</th>
+                                        <th style="border: 1px solid #ddd; padding: 4px;">Col 4</th>
+                                        <th style="border: 1px solid #ddd; padding: 4px;">Col 5</th>
+                                        {% if result.preview_hidden_cols %}
+                                        <th style="border: 1px solid #ddd; padding: 4px;">...</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in result.preview %}
+                                    <tr>
+                                        {% for val in row %}
+                                            {% if forloop.first %}
+                                                <td style="border: 1px solid #ddd; padding: 4px; color: #e74c3c;">{{ val }}</td>
+                                            {% else %}
+                                                <td style="border: 1px solid #ddd; padding: 4px;">{{ val }}</td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if result.preview_hidden_cols %}
+                                            <td style="border: 1px solid #ddd; padding: 4px; color: #95a5a6;">...</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            {% if validation_results.consistency.status == 'Success' %}
+                <div style="background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; color: #2ecc71; padding: 15px; border-radius: 5px; display: inline-block;">
+                    <h3 style="margin: 0; color: #2ecc71;">✅ Data Ready for Processing</h3>
+                    <p style="margin: 5px 0 0 0; color: #27ae60;">Tutti i controlli sono passati. Puoi procedere allo Step 2.</p>
+                </div>
+            {% else %}
+                <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; padding: 15px; border-radius: 5px; display: inline-block;">
+                    <h3 style="margin: 0; color: #e74c3c;">⚠️ Data Issues Detected</h3>
+                    <p style="margin: 5px 0 0 0;">Risolvi gli errori sopra indicati prima di procedere.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
 {% endblock %}
