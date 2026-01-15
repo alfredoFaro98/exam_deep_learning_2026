@@ -1,0 +1,52 @@
+FASE 0: Data Fusion & Splitting (Chiarezza Totale)
+Il tuo problema attuale: "Non capisco dove prende i dati di test". Risolviamo subito creandoli noi esplicitamente.
+
+Caricamento: Caricare coordinates_latent.csv (che hai già fatto, ottimo), forces_processed.csv e velocity_processed.csv.
+
+Allineamento: Assicurarsi che abbiano lo stesso numero di righe.
+
+Fusione (Concatenazione): Creare un unico Global_DataFrame.
+
+Input: Latent (32) + Forces (N) + Velocity (N).
+
+Target: Latent (32) (Vogliamo predire come si muove la proteina, le forze ci aiutano a capirlo).
+
+Split Esplicito: Dividere il DataFrame prima di creare finestre o tensori.
+
+Train (0-70%)
+
+Val (70-90%)
+
+Test (90-100%) -> Questo sarà il tuo "caveau" intoccabile fino alla fine.
+
+FASE 1: Advanced Window Generator
+Il generatore deve gestire input misti.
+
+Modificare la classe WindowGenerator per accettare input multipli ma predire solo le coordinate latenti (o coordinate + velocità).
+
+Verifica visiva: stampare le shape dei tensori (es. Input: (Batch, 25, Features_Totali), Label: (Batch, 1, 32)).
+
+FASE 2: Step 2 - Architetture & Mixed Training (Il Requisito Difficile)
+Qui si gioca il voto alto. Il prof chiede "Teacher Forcing + Masking + Sampling".
+
+Modelli Parametrici: Scrivere funzioni build_cnn(...) e build_rnn(...) flessibili (come abbiamo fatto, ma pulite).
+
+Custom Training Loop: Abbandonare parzialmente model.fit() standard o usare delle Callback Avanzate.
+
+Epoche 1-10: Teacher Forcing (Il modello vede tutto l'input reale).
+
+Epoche 11-20: Masked Modeling (Mettiamo a zero alcune forze o velocità per costringere il modello a imparare dalle coordinate).
+
+Epoche 20+: Scheduled Sampling (Il modello usa le sue stesse predizioni passate come input per il futuro).
+
+Nota: Se questo ti sembra troppo complesso, ti mostrerò una versione semplificata accettabile (es. Data Augmentation dinamica nel generatore).
+
+FASE 3: Step 3 - Grid Search Sistematica
+Definire la griglia (3 Config x 2 Finestre).
+
+Loop di training pulito.
+
+Salvataggio rigoroso dei risultati in un DataFrame (per fare la Tabella 1 richiesta).
+
+FASE 4: Step 4 - Evaluation (Quella che abbiamo appena imparato)
+Applicare lo script "Master" che abbiamo appena creato sui nuovi modelli.
