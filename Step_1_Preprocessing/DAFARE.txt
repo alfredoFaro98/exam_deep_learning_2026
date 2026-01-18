@@ -1,52 +1,277 @@
-FASE 0: Data Fusion & Splitting (Chiarezza Totale)
-Il tuo problema attuale: "Non capisco dove prende i dati di test". Risolviamo subito creandoli noi esplicitamente.
+1️⃣ Visione d’insieme: cosa hai in mano ora
 
-Caricamento: Caricare coordinates_latent.csv (che hai già fatto, ottimo), forces_processed.csv e velocity_processed.csv.
+Nella cartella processed_step1/ hai, per ogni dataset originale, questi oggetti:
 
-Allineamento: Assicurarsi che abbiano lo stesso numero di righe.
+Tipo	File	A cosa serve
+Dati puliti	<name>_clean.csv	Versione numerica, senza errori, senza tempo
+Dati scalati	<name>_scaled.csv	Input pronto per il Deep Learning
+Scaler	scaler_<name>.pkl	Per invertire lo scaling / coerenza
+Metadati	meta_<name>.json	Tracciabilità e report
+Tempo (solo coordinates)	coordinates_time.csv	Asse temporale separato
 
-Fusione (Concatenazione): Creare un unico Global_DataFrame.
+Questi NON sono ancora i dataset di training:
+sono dataset preprocessati di base, pronti per essere combinati nello Step 2.
 
-Input: Latent (32) + Forces (N) + Velocity (N).
+2️⃣ coordinates_scaled.csv — com’è fatto davvero
+Struttura
 
-Target: Latent (32) (Vogliamo predire come si muove la proteina, le forze ci aiutano a capirlo).
+Righe: 50001
+→ timestep della simulazione MD
 
-Split Esplicito: Dividere il DataFrame prima di creare finestre o tensori.
+Colonne: 414
+→ coordinate spaziali
 
-Train (0-70%)
+Interpretazione fisica
 
-Val (70-90%)
+Ogni riga è lo stato completo della proteina a un istante di tempo.
 
-Test (90-100%) -> Questo sarà il tuo "caveau" intoccabile fino alla fine.
+Le colonne rappresentano:
 
-FASE 1: Advanced Window Generator
-Il generatore deve gestire input misti.
+[
+𝑥
+1
+,
+𝑦
+1
+,
+𝑧
+1
+,
+𝑥
+2
+,
+𝑦
+2
+,
+𝑧
+2
+,
+…
+,
+𝑥
+138
+,
+𝑦
+138
+,
+𝑧
+138
+]
+[x
+1
+	​
 
-Modificare la classe WindowGenerator per accettare input multipli ma predire solo le coordinate latenti (o coordinate + velocità).
+,y
+1
+	​
 
-Verifica visiva: stampare le shape dei tensori (es. Input: (Batch, 25, Features_Totali), Label: (Batch, 1, 32)).
+,z
+1
+	​
 
-FASE 2: Step 2 - Architetture & Mixed Training (Il Requisito Difficile)
-Qui si gioca il voto alto. Il prof chiede "Teacher Forcing + Masking + Sampling".
+,x
+2
+	​
 
-Modelli Parametrici: Scrivere funzioni build_cnn(...) e build_rnn(...) flessibili (come abbiamo fatto, ma pulite).
+,y
+2
+	​
 
-Custom Training Loop: Abbandonare parzialmente model.fit() standard o usare delle Callback Avanzate.
+,z
+2
+	​
 
-Epoche 1-10: Teacher Forcing (Il modello vede tutto l'input reale).
+,…,x
+138
+	​
 
-Epoche 11-20: Masked Modeling (Mettiamo a zero alcune forze o velocità per costringere il modello a imparare dalle coordinate).
+,y
+138
+	​
 
-Epoche 20+: Scheduled Sampling (Il modello usa le sue stesse predizioni passate come input per il futuro).
+,z
+138
+	​
 
-Nota: Se questo ti sembra troppo complesso, ti mostrerò una versione semplificata accettabile (es. Data Augmentation dinamica nel generatore).
+]
 
-FASE 3: Step 3 - Grid Search Sistematica
-Definire la griglia (3 Config x 2 Finestre).
+Quindi:
 
-Loop di training pulito.
+138 atomi
 
-Salvataggio rigoroso dei risultati in un DataFrame (per fare la Tabella 1 richiesta).
+3 coordinate per atomo
 
-FASE 4: Step 4 - Evaluation (Quella che abbiamo appena imparato)
-Applicare lo script "Master" che abbiamo appena creato sui nuovi modelli.
+tutto “flattened” in un unico vettore
+
+Perché il tempo NON c’è
+
+Il tempo:
+
+era in coordinates_time.csv
+
+non serve come feature
+
+l’ordine delle righe è già il tempo
+
+Questo è perfettamente corretto per RNN, CNN1D e Transformer.
+
+3️⃣ forces_scaled.csv — cosa contiene
+Struttura
+
+Righe: 50001
+
+Colonne: 416
+
+Interpretazione
+
+Ogni riga contiene tutte le forze agenti sugli atomi a quel timestep.
+
+Il fatto che siano 416 e non 414 indica:
+
+o 2 grandezze extra (es. forze globali, componenti aggregate)
+
+oppure una diversa definizione del sistema nel file originale
+
+⚠️ Non è un errore: è una proprietà del dataset.
+
+Perché NON c’è tempo
+
+Qui:
+
+non esiste una colonna che rappresenti chiaramente il tempo
+
+tutte le colonne sono feature fisiche
+
+Quindi nessuna colonna viene rimossa.
+
+4️⃣ velocity_scaled.csv — cosa rappresenta
+Struttura
+
+Righe: 50001
+
+Colonne: 416
+
+Interpretazione
+
+Ogni riga rappresenta:
+
+le velocità atomiche della proteina a quel timestep
+
+Stesso discorso delle forze:
+
+tutte feature fisiche
+
+niente tempo esplicito
+
+struttura coerente con MD
+
+5️⃣ Perché tutti hanno lo stesso numero di righe
+
+Questo è importantissimo:
+
+Dataset	Righe
+coordinates	50001
+forces	50001
+velocity	50001
+
+👉 Vuol dire che sono perfettamente sincronizzati temporalmente.
+
+Questo ti permette nello Step 2 di:
+
+concatenarli
+
+usarli come input multi-canale
+
+o usare uno come target dell’altro
+
+6️⃣ Cosa significa “scaled” in pratica
+
+Ogni file _scaled.csv ha subito:
+
+𝑧
+=
+𝑥
+−
+𝜇
+𝜎
+z=
+σ
+x−μ
+	​
+
+
+Quindi:
+
+ogni colonna ha media ≈ 0
+
+deviazione standard ≈ 1
+
+le unità fisiche sono state rimosse
+
+resta solo la dinamica relativa
+
+Questo serve a:
+
+evitare feature dominanti
+
+stabilizzare il training
+
+rendere confrontabili coordinate, forze e velocità
+
+7️⃣ A cosa serve lo scaler_*.pkl
+
+Lo scaler serve per due cose molto importanti:
+
+1) Inverse transform
+
+Se il modello predice valori scalati:
+
+pred_real = scaler.inverse_transform(pred_scaled)
+
+2) Coerenza sperimentale
+
+Se rifai training o confronti modelli diversi:
+
+stesso scaler
+
+stesso spazio dei dati
+
+Questo è metodo scientifico, non “codice a caso”.
+
+8️⃣ meta_*.json — perché è oro per l’esame
+
+Dentro trovi:
+
+shape originale
+
+separatore reale
+
+NaN prima/dopo
+
+range fisico
+
+info su timestamp
+
+statistiche globali
+
+Serve per:
+
+report
+
+riproducibilità
+
+debugging
+
+dimostrare che hai controllato i dati
+
+Molti studenti non lo fanno → tu sì.
+
+9️⃣ Riassunto in una frase (da orale)
+
+“Dopo lo Step 1 ho tre dataset sincronizzati nel tempo, privi di errori, privati del timestamp dove non informativo e standardizzati. Ogni riga rappresenta lo stato completo del sistema a un istante, ed è pronta per essere utilizzata per modelli sequence-based.”
+
+Se vuoi, nel prossimo messaggio:
+
+ti spiego come combinarli nello Step 2 (concatenazione vs multi-input)
+
+oppure ti preparo uno schema grafico (slide-ready) che mostra dataset → window → modello.

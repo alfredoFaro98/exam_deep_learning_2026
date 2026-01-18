@@ -1,0 +1,25 @@
+{
+  "file": "velocity.csv",
+  "base_name": "velocity",
+  "separator_used": "whitespace",
+  "raw_shape": [
+    50001,
+    416
+  ],
+  "drop_time": false,
+  "time_info": null,
+  "nan_before": 0,
+  "nan_after": 0,
+  "clean_stats": {
+    "mean_global": 0.11780717464269423,
+    "std_global": 0.8847656796289862,
+    "min_global": -8.77941,
+    "max_global": 100.0
+  },
+  "scaled_stats": {
+    "mean_global": 1.4569696334458409e-18,
+    "std_global": 1.0000099999500005,
+    "min_global": -6.381950920151101,
+    "max_global": 6.645490553632084
+  }
+}

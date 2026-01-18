@@ -1,0 +1,25 @@
+{
+  "file": "forces.csv",
+  "base_name": "forces",
+  "separator_used": "whitespace",
+  "raw_shape": [
+    50001,
+    416
+  ],
+  "drop_time": false,
+  "time_info": null,
+  "nan_before": 0,
+  "nan_after": 0,
+  "clean_stats": {
+    "mean_global": 0.12073879033030323,
+    "std_global": 674.0796893189868,
+    "min_global": -6772.97,
+    "max_global": 6400.45
+  },
+  "scaled_stats": {
+    "mean_global": 8.711268506596845e-19,
+    "std_global": 1.0000099999500005,
+    "min_global": -6.825860356515487,
+    "max_global": 9.759409830783081
+  }
+}
