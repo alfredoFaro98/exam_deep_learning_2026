@@ -18,7 +18,4 @@ Questo non è un semplice problema di regressione su serie temporali. Le diffico
 1.  **Alta Dimensionalità**: Abbiamo 138 atomi, ciascuno con 3 coordinate (X, Y, Z). Lo spazio degli stati ha 414 dimensioni, tutte correlate tra loro.
 2.  **Correlazioni non Lineari**: Gli atomi interagiscono in modo complesso (legami covalenti, forze di Van der Waals, elettrostatica). Il modello deve "imparare la fisica" dai dati.
 3.  **Memoria a Lungo Termine**: La configurazione attuale dipende dalla storia passata (ripiegamenti, inerzia). Ecco perché una semplice rete Feed-Forward non basta; servono **RNN** o **CNN 1D**.
-4.  **Caoticità**: Piccole perturbazioni iniziali possono portare a traiettorie molto diverse (Effetto farfalla). Il modello deve essere robusto.
-
-## 4. Disponibilità Esperti
-Gli esperti del dominio (biologi, chimici computazionali) sono una risorsa cruciale. In caso di dubbi sulla validità fisica di una predizione (es. due atomi che si sovrappongono o distanze di legame assurde), possiamo e dobbiamo consultarli.
+4.  **Caoticità**: Piccole perturbazioni iniziali possono portare a traiettorie molto diverse (Effetto farfalla). Il modello deve essere robusto
