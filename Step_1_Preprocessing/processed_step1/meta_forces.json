@@ -1,23 +1,46 @@
 {
   "file": "forces.csv",
   "base_name": "forces",
-  "separator_used": "whitespace",
+  "separator_used": "\\t (cleaned)",
   "raw_shape": [
     50001,
-    416
+    415
   ],
-  "drop_time": false,
-  "time_info": null,
+  "final_shape": [
+    50001,
+    414
+  ],
+  "time_info": {
+    "time_numeric": true,
+    "time_monotonic": true,
+    "time_head": [
+      0.0,
+      0.002,
+      0.004,
+      0.006,
+      0.008
+    ],
+    "time_tail": [
+      99.992,
+      99.994,
+      99.996,
+      99.998,
+      100.0
+    ],
+    "dt_median": 0.0019999999999997797,
+    "dt_min": 0.001999999999995339,
+    "dt_max": 0.0020000000000095497
+  },
   "nan_before": 0,
   "nan_after": 0,
   "clean_stats": {
-    "mean_global": 0.12073879033030323,
-    "std_global": 674.0796893189868,
+    "mean_global": -0.00010120823536798595,
+    "std_global": 675.4482919857494,
     "min_global": -6772.97,
     "max_global": 6400.45
   },
   "scaled_stats": {
-    "mean_global": 8.711268506596845e-19,
+    "mean_global": 2.0614337555998873e-19,
     "std_global": 1.0000099999500005,
     "min_global": -6.825860356515487,
     "max_global": 9.759409830783081

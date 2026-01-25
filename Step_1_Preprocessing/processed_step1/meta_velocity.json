@@ -1,23 +1,46 @@
 {
   "file": "velocity.csv",
   "base_name": "velocity",
-  "separator_used": "whitespace",
+  "separator_used": "\\t (cleaned)",
   "raw_shape": [
     50001,
-    416
+    415
   ],
-  "drop_time": false,
-  "time_info": null,
+  "final_shape": [
+    50001,
+    414
+  ],
+  "time_info": {
+    "time_numeric": true,
+    "time_monotonic": true,
+    "time_head": [
+      0.0,
+      0.002,
+      0.004,
+      0.006,
+      0.008
+    ],
+    "time_tail": [
+      99.992,
+      99.994,
+      99.996,
+      99.998,
+      100.0
+    ],
+    "dt_median": 0.0019999999999997797,
+    "dt_min": 0.001999999999995339,
+    "dt_max": 0.0020000000000095497
+  },
   "nan_before": 0,
   "nan_after": 0,
   "clean_stats": {
-    "mean_global": 0.11780717464269423,
-    "std_global": 0.8847656796289862,
+    "mean_global": -0.002969476671383906,
+    "std_global": 0.8160106377612537,
     "min_global": -8.77941,
-    "max_global": 100.0
+    "max_global": 7.76788
   },
   "scaled_stats": {
-    "mean_global": 1.4569696334458409e-18,
+    "mean_global": 7.320245874552961e-19,
     "std_global": 1.0000099999500005,
     "min_global": -6.381950920151101,
     "max_global": 6.645490553632084

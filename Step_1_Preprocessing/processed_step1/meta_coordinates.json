@@ -6,7 +6,10 @@
     50001,
     415
   ],
-  "drop_time": true,
+  "final_shape": [
+    50001,
+    414
+  ],
   "time_info": {
     "time_numeric": true,
     "time_monotonic": true,
