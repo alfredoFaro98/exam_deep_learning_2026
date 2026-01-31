@@ -1,0 +1,5 @@
+{
+    "model": "Persistence_Baseline",
+    "val_mse": 0.24542692303657532,
+    "test_mse": 0.25633591413497925
+}
